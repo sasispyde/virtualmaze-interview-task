@@ -1,0 +1,64 @@
+<%- include('./partials/header'); -%>
+	<div class="detail_container">
+
+		<form id="create_room_form">
+			<div class="form-group col input_container">
+				<p style="text-align: right;"><a href="/" class="text-primary">Home</a></p>
+		    </div>
+		  <div class="form-row">
+		    <div class="form-group col input_container">
+		    	<label>Group Name</label>
+		      	<input type="text" required="true" name="group_name" minlength="4" maxlength="20" class="form-control" placeholder="Group name" value="">
+		      	<div id="group_name" class="invalid-feedback">
+		          Field musy not be empty.
+		        </div>
+		    </div>
+		    <div class="form-group col input_container">
+		    	<label>Password</label>
+		      	<input type="password" required="true" name="password" minlength="4" maxlength="16" class="form-control" placeholder="Password" value="">
+		      	<div id="password" class="invalid-feedback">
+		          Field musy not be empty.
+		        </div>
+		    </div>
+		    <div style="display: grid;" class="col input_container">
+		      <button id="submit_button" id="submit_button" class="btn btn-primary" type="submit">Create Group</button>
+		    </div>
+		  </div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById('create_room_form').addEventListener( "submit",(event) => {
+			event.preventDefault();
+			const formData = new FormData(event.target);
+
+			var userInfo = localStorage.getItem('user_details');
+			if(userInfo) {
+				userInfo = JSON.parse(userInfo);
+			}
+
+  			let formValues = Object.fromEntries(formData);
+  			formValues['created_by'] = userInfo._id;
+
+  			async function storeGroup() {
+				try {
+					document.getElementById("submit_button").disabled = true;
+					document.getElementById("submit_button").innerHTML = "Please wait...";
+					let storeGroup = await axios.post('http://localhost:3000/group/add', formValues);
+					if(storeGroup.data.status == 1) {
+  						window.location = "http://localhost:3000/";	
+					} else {
+						document.getElementById("submit_button").disabled = false;
+					document.getElementById("submit_button").innerHTML = "Create Group";
+						alert(storeGroup.data.message);
+					}
+				} catch (error) {
+					document.getElementById("submit_button").disabled = false;
+					document.getElementById("submit_button").innerHTML = "Create Group";
+					console.error(error);
+				}
+			}
+			storeGroup();
+		})
+	</script>
+<%- include('./partials/footer'); -%>

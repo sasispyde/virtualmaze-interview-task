@@ -1,0 +1,67 @@
+<%- include('./partials/header'); -%>	
+	<div class="detail_container">
+		<form id="user_details_form">
+		  <div class="form-row">
+		  	<div style="display:inline-flex;" class="form-group col input_container">
+				<p style="text-align: right;margin: auto;"><a href="/login" class="text-primary">Login</a></p>
+				<p style="text-align: right;"><a href="/register" class="text-primary">Register</a></p>
+		    </div>
+		    <div class="form-group col input_container">
+		    	<label>Group name : <%= groupInfo.group_name %></label>
+		    </div>
+		    <div class="form-group col input_container">
+		    	<label>Password</label>
+		      	<input type="password" required="true" name="password" minlength="4" maxlength="16" class="form-control" placeholder="Password" value="">
+		      	<div id="password" class="invalid-feedback">
+		          Field musy not be empty.
+		        </div>
+		    </div>
+		    <div style="display: grid;" class="col input_container">
+		      <button class="btn btn-primary" id="submit_button" type="submit">Join</button>
+		    </div>
+		  </div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById('user_details_form').addEventListener( "submit",(event) => {
+			event.preventDefault();
+
+			let userDetails = localStorage.getItem('user_details');
+			if(userDetails != null) {
+				const formData = new FormData(event.target);
+	  			const formValues = Object.fromEntries(formData);
+	  			userDetails = JSON.parse(userDetails);
+	  			async function joinByLInk() {
+					try {
+						document.getElementById("submit_button").disabled = true;
+						document.getElementById("submit_button").innerHTML = "Please wait...";
+						let id = window.location.href;
+						id = id.split('/');
+						id = id[4];
+						if(id !== "") {
+							formValues['id'] = id;
+							formValues['user_id'] = userDetails._id;
+							let joinGroup = await axios.post('http://localhost:3000/group/join_by_link', formValues);
+							if(joinGroup.data.status == 1) {
+			  					window.location = "http://localhost:3000";
+							} else {
+								document.getElementById("submit_button").disabled = false;
+								document.getElementById("submit_button").innerHTML = "Join";
+								alert(joinGroup.data.message);
+							}
+						} else {
+							alert("Invalid id");
+						}
+					} catch (error) {
+						console.error(error);
+					}
+				}
+				joinByLInk();
+			} else {
+				alert("Plaase login to continue...");
+			}
+		})
+	</script>
+
+<%- include('./partials/footer'); -%>

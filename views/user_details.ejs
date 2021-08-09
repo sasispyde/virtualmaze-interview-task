@@ -1,0 +1,71 @@
+<%- include('./partials/header'); -%>
+	
+	<script type="text/javascript">
+		var userInfo = localStorage.getItem('user_details');
+		if(userInfo != null) {
+			window.location = "http://localhost:3000";
+		}
+	</script>
+	
+	<div class="detail_container">
+		<form id="user_details_form">
+		  <div class="form-row">
+		  	<div class="form-group col input_container">
+				<p style="text-align: right;"><a href="/login" class="text-primary">Login</a></p>
+		    </div>
+		    <div class="form-group col input_container">
+		    	<label>First name</label>
+		      	<input type="text" required="true" name="user_name" minlength="4" maxlength="20" class="form-control" placeholder="First name" value="">
+		      	<div id="user_name" class="invalid-feedback">
+		          Field musy not be empty.
+		        </div>
+		    </div>
+		    <div class="form-group col input_container">
+		    	<label>Phone number</label>
+		      	<input type="number" required="true" name="phone_number" minlength="10" maxlength="10" class="form-control" placeholder="Phone number" value="">
+		      	<div id="phone_number" class="invalid-feedback">
+		          Field musy not be empty.
+		        </div>
+		    </div>
+		    <div class="form-group col input_container">
+		    	<label>Password</label>
+		      	<input type="password" required="true" name="password" minlength="4" maxlength="16" class="form-control" placeholder="Password" value="">
+		      	<div id="password" class="invalid-feedback">
+		          Field musy not be empty.
+		        </div>
+		    </div>
+		    <div style="display: grid;" class="col input_container">
+		      <button class="btn btn-primary" id="submit_button" type="submit">Submit</button>
+		    </div>
+		  </div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById('user_details_form').addEventListener( "submit",(event) => {
+			event.preventDefault();
+			const formData = new FormData(event.target);
+  			const formValues = Object.fromEntries(formData);
+
+  			async function storeUser() {
+				try {
+					document.getElementById("submit_button").disabled = true;
+					document.getElementById("submit_button").innerHTML = "Please wait...";
+					let storeUser = await axios.post('http://localhost:3000/user/add', formValues);
+					if(storeUser.data.status == 1) {
+						localStorage.setItem("user_details",JSON.stringify(storeUser.data.data));
+	  					window.location = "http://localhost:3000/chat";
+					} else{
+						document.getElementById("submit_button").disabled = false;
+						document.getElementById("submit_button").innerHTML = "Submit";
+						alert(storeUser.data.message);
+					}
+				} catch (error) {
+					console.error(error);
+				}
+			}
+			storeUser();
+		})
+	</script>
+
+<%- include('./partials/footer'); -%>
